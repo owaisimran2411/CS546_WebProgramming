@@ -7,7 +7,6 @@ import {
   products
 } from "./../config/mongoCollections.js"
 import { ObjectId } from "mongodb";
-import { after } from "node:test";
 
 // TODO: Export and implement the following functions in ES6 format
 const create = async (
@@ -33,10 +32,7 @@ const create = async (
   argumentProvidedValidation(keywords, "keywords")
   argumentProvidedValidation(categories, "categories")
   argumentProvidedValidation(dateReleased, "dateReleased")
-  
-  if(!discontinued.toString()) {
-    throw `discontinued not provided`
-  }
+  argumentProvidedValidation(discontinued.toString(), "discontinued")
 
 
   // data type valdiation
@@ -59,7 +55,7 @@ const create = async (
   if(price>0) {
     if(Math.floor(price) !== price) {
       if(price.toString().split(".")[1].length > 2) {
-        throw `Decimal Digits in price than 2`
+        throw `Decimal Digits in price greater than 2`
       }
     }
   } else {
@@ -206,6 +202,7 @@ const rename = async (id, newProductName) => {
 
   argumentProvidedValidation(newProductName, "newProductName")
   primitiveTypeValidation(newProductName, "newProductName", "String")
+  newProductName = newProductName.trim()
 
   const _productInformationBeforeUpdate = await get(id)
   if (_productInformationBeforeUpdate.productName === newProductName) {
