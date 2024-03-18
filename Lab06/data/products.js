@@ -197,9 +197,13 @@ const remove = async (productId) => {
     _id: new ObjectId(productId)
   });
   if (!deletedProductInformation) {
-    throw `Unable to delete product`
+    return `Unable to delete product`
   } else {
-    return `${deletedProductInformation.productName} has been successfully deleted!`
+    // console.log(deletedProductInformation);
+    return {
+      _id: deletedProductInformation._id,
+      deleted: true
+    }
   }
 };
 
@@ -331,11 +335,14 @@ const update = async (
 
     const productsCollection = await products()
     const updateProductStatus = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProduct})
-
-    if(updateProductStatus) {
-      return await this.get(productId)
+    console.log(updateProductStatus)
+    if(updateProductStatus.modifiedCount>0) {
+      const productInformation = await productsCollection.findOne(
+        {_id: new ObjectId(productId)}
+      )
+      return productInformation
     } else {
-      throw `Unable to update product`
+      return `Unable to update product`
     }
 
     

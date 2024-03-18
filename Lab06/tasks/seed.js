@@ -1,6 +1,6 @@
 import {dbConnection, closeConnection} from '../config/mongoConnection.js';
-import * as product from './../data/products.js';
-import * as reviews from './../data/reviews.js';
+import product from './../data/products.js';
+import reviews from './../data/reviews.js';
 
 const db = await dbConnection();
 await db.dropDatabase();

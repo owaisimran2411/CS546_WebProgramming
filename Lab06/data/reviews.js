@@ -9,9 +9,7 @@ import {
   products
 } from "./../config/mongoCollections.js"
 
-import {
-  productsData
-} from './index.js'
+import productsData from './products.js'
 
 import { ObjectId } from "mongodb";
 
@@ -42,8 +40,9 @@ const createReview = async (
   objectIdValidation(productId)
 
   primitiveTypeValidation(rating, "rating", "Number")
+  
 
-  if(rating>1 && rating<5) {
+  if(rating>=1 && rating<=5) {
     if(Math.floor(rating) !== rating) {
       if(rating.toString().split(".")[1].length > 1) {
         throw `Decimal Digits in rating greater than 1`
@@ -52,35 +51,43 @@ const createReview = async (
   } else {
     throw `rating is less than or equal to zero`
   }
-
+  
   const reviewDate = new Date()
-  currentDate.setHours(0,0,0,0)
-
-  const productInformation = await productsData.get(productId)
+  reviewDate.setHours(0,0,0,0)
+  
   const productsCollection = await products()
-
+  const productInformation = await productsData.get(productId)
+  if(!productInformation) {
+    return 'Product Not Found'
+  }
+  
   const reviewObject = {
     _id: new ObjectId(),
     title: title,
-    reviewDate: reviewDate,
+    reviewDate: `${reviewDate.getMonth() + 1 }/${reviewDate.getDate()}/${reviewDate.getFullYear()}`,
     reviewerName: reviewerName,
     review: review,
     rating: rating
   }
-
-  const newReviewsList = productInformation.reviews.push(reviewObject)
-  const ratingsArray = newReviewsList.map((review) => {return review.rating})
-
+  
+  // console.log(productInformation.reviews)
+  productInformation.reviews.push(reviewObject)
+  // console.log(productInformation.reviews)
+  const ratingsArray = productInformation.reviews.map((review) => {return review.rating})
+  // console.log(ratingsArray)
+  let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
+  averageRating = Math.round(averageRating*10)/10
   const updatedProductObject = {
-    reviews: newReviewsList,
-    averageRating: Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10
+    reviews: productInformation.reviews,
+    averageRating: averageRating
   }
-
+  // console.log(updatedProductObject)
+  
   const productUpdate = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProductObject})
-  if (productUpdate) {
+  if (productUpdate.modifiedCount>0) {
     return reviewObject
   } else {
-    throw `Unable to add review`
+    return `Unable to add review`
   }
 
 
@@ -93,9 +100,24 @@ const getAllReviews = async (productId) => {
   productId = productId.trim()
   objectIdValidation(productId)
 
-  const getProductReviews = await productsData.get(productId)
-  return getProductReviews.reviews
-
+  const productsCollection = await products()
+  const productInformation = await productsCollection.findOne(
+    {_id: new ObjectId(productId)},
+    {projection: {
+      _id: 0,
+      'reviews': 1
+    }}
+  )
+  console.log(productInformation.reviews);
+  if(productInformation) {
+    if(productInformation.reviews.length > 0) {
+      return productInformation.reviews
+    } else {
+      return 'No reviews for the product'
+    }
+  } else {
+    return 'No Product Found'
+  }
 };
 
 const getReview = async (reviewId) => {
