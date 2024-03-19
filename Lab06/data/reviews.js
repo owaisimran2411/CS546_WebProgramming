@@ -128,22 +128,24 @@ const getReview = async (reviewId) => {
   objectIdValidation(reviewId)
 
   const productsCollection = await products()
-  const productsInformation = await productsCollection.find().project({_id: 0, reviews: 1}).toArray()
-
-  const dataToReturn = undefined
-  const found = false
-  for(let i=0; i<productsInformation.length; i++) {
-    for(let j=0; j<productInformation[i].reviews.length; i++) {
-      if(productsInformation[i].reviews[j]._id.toString() == reviewId) {
-        dataToReturn = productInformation[i].reviews[j]
-        found = true
-      }
-    }
-  }
-  if(found) {
-    return dataToReturn
+  const productsInformation = await productsCollection.find({'reviews._id': new ObjectId(reviewId)}).project({_id: 0, reviews: 1}).toArray()
+  
+  // const dataToReturn = undefined
+  // const found = false
+  
+  // for(let i=0; i<productsInformation[0].reviews.length; i++) {
+  //   console.log(productsInformation[0].reviews[i]._id.toString())
+  //   if(productsInformation[0].reviews[i]._id.toString().trim() == reviewId) {
+  //     dataToReturn = productsInformation[0].reviews[i]
+  //     found=true
+  //   }
+  // }
+  // console.log(dataToReturn)
+  if(productsInformation) {
+    // console.
+    return productsInformation[0].reviews
   } else {
-    throw `no review found with the given review id`
+    return `no review found with the given review id`
   }
 
 };
@@ -153,8 +155,6 @@ const updateReview = async (reviewId, updateObject) => {
   argumentProvidedValidation(updateObject, 'updateObject')
 
   reviewId = reviewId.trim()
-
-  let ratingValueSupplied = false
 
   objectIdValidation(reviewId)
 
@@ -179,58 +179,59 @@ const updateReview = async (reviewId, updateObject) => {
   if('rating' in updateObject) {
     argumentProvidedValidation(updateObject.rating, "rating")
     primitiveTypeValidation(updateObject.rating, "rating", "Number")
-    if(rating>1 && rating<5) {
-      if(Math.floor(rating) !== rating) {
-        if(rating.toString().split(".")[1].length > 1) {
+    if(updateObject.rating>=1 && updateObject.rating<=5) {
+      if(Math.floor(updateObject.rating) !== updateObject.rating) {
+        if(updateObject.rating.toString().split(".")[1].length > 1) {
           throw `Decimal Digits in rating greater than 1`
-        } else {
-          ratingValueSupplied = true
         }
       }
     } else {
       throw `rating is less than or equal to zero`
     }
   }
-
-  let productsInformation = await productsCollection.find().project({_id: 1, reviews: 1}).toArray()
-  let _pid = undefined
-  let _iValue = undefined
-  let _jValue = undefined
-
-  for(let i=0; i<productsInformation.length; i++) {
-    for(let j=0; j<productInformation[i].reviews.length; i++) {
-      if(productsInformation[i].reviews[j]._id.toString() == reviewId) {
-        _pid = productsInformation[i].reviews[j]._id
-        _iValue = i
-        _jValue = j
-      }
+  const productsCollection = await products()
+  let productsInformation = await productsCollection.find({'reviews._id': new ObjectId(reviewId)}).project({_id: 1, reviews: 1}).toArray()
+  console.log(productsInformation)
+  
+  if (productsInformation.length>0) {
+    const _pid = productsInformation[0]._id.toString()
+    const newReviewsList = []
+    const reviewDate = new Date()
+    reviewDate.setHours(0,0,0,0)
+    for(let i=0; i<productsInformation[0].reviews.length; i++) {
+      const id = productsInformation[0].reviews[i]._id.toString()
+      if(id === reviewId) {
+        // console.log("ID Found")
+        productsInformation[0].reviews[i]["review"] = updateObject.review || productsInformation[0].reviews[i]["review"]
+        productsInformation[0].reviews[i]["reviewerName"] = updateObject.reviewerName || productsInformation[0].reviews[i]["reviewerName"]
+        productsInformation[0].reviews[i]["rating"] = updateObject.rating || productsInformation[0].reviews[i]["rating"]
+        // console.log("ratings updated")
+        productsInformation[0].reviews[i]["title"] = updateObject.title || productsInformation[0].reviews[i]["title"]
+        productsInformation[0].reviews[i]["reviewDate"] = `${reviewDate.getMonth() + 1 }/${reviewDate.getDate()}/${reviewDate.getFullYear()}`
+      } 
+      newReviewsList.push(productsInformation[0].reviews[i])
+      
     }
-  }
-
-  if(_pid && _iValue && _jValue) {
-    productInformation[_iValue].reviews[_jValue] = updateObject
-    productInformation[_iValue].reviews[_jValue] = new ObjectId(_pid.toString())
-    const productInformation = await productsData.get(productId)
-    const productsCollection = await products()
-
-    if (ratingValueSupplied) {
-      const reviewsList = productInformation.reviews
-      const ratingsArray = reviewsList.map((review) => {return review.rating})
-
-      const updatedProductObject = {
-        reviews: reviewsList,
-        averageRating: Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10
-      }
-
-      const productUpdate = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProductObject})
-      if (productUpdate) {
-        return await products(productID)
-      } else {
-        throw `Unable to add review`
-      }
+    // console.log(productsInformation[0].reviews)
+    // console.log(newReviewsList)
+    let ratingsArray = newReviewsList.map((review) => {return review.rating})
+    // console.log(ratingsArray)
+    let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
+    averageRating = Math.round(averageRating*10)/10
+    const updatedProductObject = {
+      reviews: newReviewsList,
+      averageRating: averageRating
+    }
+    // console.log(updatedProductObject)
+    
+    const productUpdate = await productsCollection.updateOne({_id: new ObjectId(_pid)}, {$set: updatedProductObject})
+    if(productUpdate.modifiedCount>0) {
+      return await productsData.get(_pid)
+    } else {
+      return "no change in review current and previous state"
     }
   } else {
-      throw `Unable to find product ID`
+    return "Review Not Found"
   }
 
   
@@ -244,26 +245,41 @@ const removeReview = async (reviewId) => {
   reviewId = reviewId.trim()
   objectIdValidation(reviewId)
 
-  let productsInformation = await productsCollection.find().project({_id: 1, 'reviews.id': 1}).toArray()
-  let _pid = undefined
-  let _iValue = undefined
-  let _jValue = undefined
-
-  for(let i=0; i<productsInformation.length; i++) {
-    for(let j=0; j<productInformation[i].reviews.length; i++) {
-      if(productsInformation[i].reviews[j]._id.toString() == reviewId) {
-        _pid = productsInformation[i].reviews[j]._id
-        _iValue = i
-        _jValue = j
+  const productsCollection = await products()
+  let productsInformation = await productsCollection.find({'reviews._id': new ObjectId(reviewId)}).project({_id: 1, 'reviews': 1}).toArray()
+  if(productsInformation.length > 0) {
+    const _pid = productsInformation[0]._id.toString()
+    const newReviewsList = []
+    for(let i=0; i<productsInformation[0].reviews.length; i++) {
+      const id = productsInformation[0].reviews[i]._id.toString()
+      if(id !== reviewId) {
+        newReviewsList.push(productsInformation[0].reviews[i])
+      } 
+    }
+    let updatedProductObject = undefined
+    if(newReviewsList.length !== 0) {
+      let ratingsArray = newReviewsList.map((review) => {return review.rating})
+      // console.log(ratingsArray)
+      let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
+      averageRating = Math.round(averageRating*10)/10
+      updatedProductObject = {
+        reviews: newReviewsList,
+        averageRating: averageRating
+      }
+    } else {
+      updatedProductObject = {
+        reviews: newReviewsList,
+        averageRating: 0
       }
     }
-  }
-
-  if(_pid && _iValue && _jValue) {
-    productsInformation.splice(productsInformation[_iValue].reviews[_jValue])
+    const productUpdate = await productsCollection.updateOne({_id: new ObjectId(_pid)}, {$set: updatedProductObject})
+    if(productUpdate.modifiedCount>0) {
+      return await productsData.get(_pid)
+    }
   } else {
-    throw `Unable to find product`
+    return "Review Not Found"
   }
+  
 
 
   
