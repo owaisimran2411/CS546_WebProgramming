@@ -135,8 +135,6 @@ const create = async (
   const productsCollection = await products()
   const productInsertion = await productsCollection.insertOne(newProduct)
 
-  // console.log(productInsertion);
-
   if(!productInsertion.acknowledged || !productInsertion.insertedId) {
     throw `Unable to add product record`
   }
@@ -144,7 +142,6 @@ const create = async (
   const newProductID = productInsertion.insertedId.toString()
   const productInformation = await get(newProductID)
   
-  // console.log(productInformation);
   return productInformation
 
 };
@@ -199,7 +196,6 @@ const remove = async (productId) => {
   if (!deletedProductInformation) {
     return `Unable to delete product`
   } else {
-    // console.log(deletedProductInformation);
     return {
       _id: deletedProductInformation._id,
       deleted: true
@@ -297,6 +293,7 @@ const update = async (
   
     const currentDate = new Date()
     currentDate.setHours(0,0,0,0)
+    
     if ( currentDate >= new Date(dateReleased) ) {
         if ((_MM === 1 || _MM === 3 || _MM === 5 || _MM === 7 || _MM === 8 || _MM === 10 || _MM === 12)
         && (_DD > 0 && _DD <= 31) 
@@ -335,7 +332,6 @@ const update = async (
 
     const productsCollection = await products()
     const updateProductStatus = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProduct})
-    console.log(updateProductStatus)
     if(updateProductStatus.modifiedCount>0) {
       const productInformation = await productsCollection.findOne(
         {_id: new ObjectId(productId)}

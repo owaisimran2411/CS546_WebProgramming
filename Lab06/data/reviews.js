@@ -57,38 +57,36 @@ const createReview = async (
   
   const productsCollection = await products()
   const productInformation = await productsData.get(productId)
-  if(!productInformation) {
+  if(typeof productInformation === "string") {
     return 'Product Not Found'
-  }
-  
-  const reviewObject = {
-    _id: new ObjectId(),
-    title: title,
-    reviewDate: `${reviewDate.getMonth() + 1 }/${reviewDate.getDate()}/${reviewDate.getFullYear()}`,
-    reviewerName: reviewerName,
-    review: review,
-    rating: rating
-  }
-  
-  // console.log(productInformation.reviews)
-  productInformation.reviews.push(reviewObject)
-  // console.log(productInformation.reviews)
-  const ratingsArray = productInformation.reviews.map((review) => {return review.rating})
-  // console.log(ratingsArray)
-  let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
-  averageRating = Math.round(averageRating*10)/10
-  const updatedProductObject = {
-    reviews: productInformation.reviews,
-    averageRating: averageRating
-  }
-  // console.log(updatedProductObject)
-  
-  const productUpdate = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProductObject})
-  if (productUpdate.modifiedCount>0) {
-    return reviewObject
   } else {
-    return `Unable to add review`
+      const reviewObject = {
+        _id: new ObjectId(),
+        title: title,
+        reviewDate: `${reviewDate.getMonth() + 1 }/${reviewDate.getDate()}/${reviewDate.getFullYear()}`,
+        reviewerName: reviewerName,
+        review: review,
+        rating: rating
+      }
+      
+      productInformation.reviews.push(reviewObject)
+      const ratingsArray = productInformation.reviews.map((review) => {return review.rating})
+      let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
+      averageRating = Math.round(averageRating*10)/10
+      const updatedProductObject = {
+        reviews: productInformation.reviews,
+        averageRating: (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
+      }
+      
+      const productUpdate = await productsCollection.updateOne({_id: new ObjectId(productId)}, {$set: updatedProductObject})
+      if (productUpdate.modifiedCount>0) {
+        return await productsData.get(productId)
+      } else {
+        return `Unable to modify product`
+      }
   }
+  
+  
 
 
 };
@@ -108,7 +106,6 @@ const getAllReviews = async (productId) => {
       'reviews': 1
     }}
   )
-  console.log(productInformation.reviews);
   if(productInformation) {
     if(productInformation.reviews.length > 0) {
       return productInformation.reviews
@@ -130,19 +127,7 @@ const getReview = async (reviewId) => {
   const productsCollection = await products()
   const productsInformation = await productsCollection.find({'reviews._id': new ObjectId(reviewId)}).project({_id: 0, reviews: 1}).toArray()
   
-  // const dataToReturn = undefined
-  // const found = false
-  
-  // for(let i=0; i<productsInformation[0].reviews.length; i++) {
-  //   console.log(productsInformation[0].reviews[i]._id.toString())
-  //   if(productsInformation[0].reviews[i]._id.toString().trim() == reviewId) {
-  //     dataToReturn = productsInformation[0].reviews[i]
-  //     found=true
-  //   }
-  // }
-  // console.log(dataToReturn)
-  if(productsInformation) {
-    // console.
+  if(productsInformation.length>0) {
     return productsInformation[0].reviews
   } else {
     return `no review found with the given review id`
@@ -191,7 +176,6 @@ const updateReview = async (reviewId, updateObject) => {
   }
   const productsCollection = await products()
   let productsInformation = await productsCollection.find({'reviews._id': new ObjectId(reviewId)}).project({_id: 1, reviews: 1}).toArray()
-  console.log(productsInformation)
   
   if (productsInformation.length>0) {
     const _pid = productsInformation[0]._id.toString()
@@ -201,28 +185,22 @@ const updateReview = async (reviewId, updateObject) => {
     for(let i=0; i<productsInformation[0].reviews.length; i++) {
       const id = productsInformation[0].reviews[i]._id.toString()
       if(id === reviewId) {
-        // console.log("ID Found")
         productsInformation[0].reviews[i]["review"] = updateObject.review || productsInformation[0].reviews[i]["review"]
         productsInformation[0].reviews[i]["reviewerName"] = updateObject.reviewerName || productsInformation[0].reviews[i]["reviewerName"]
         productsInformation[0].reviews[i]["rating"] = updateObject.rating || productsInformation[0].reviews[i]["rating"]
-        // console.log("ratings updated")
         productsInformation[0].reviews[i]["title"] = updateObject.title || productsInformation[0].reviews[i]["title"]
         productsInformation[0].reviews[i]["reviewDate"] = `${reviewDate.getMonth() + 1 }/${reviewDate.getDate()}/${reviewDate.getFullYear()}`
       } 
       newReviewsList.push(productsInformation[0].reviews[i])
       
     }
-    // console.log(productsInformation[0].reviews)
-    // console.log(newReviewsList)
     let ratingsArray = newReviewsList.map((review) => {return review.rating})
-    // console.log(ratingsArray)
     let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
     averageRating = Math.round(averageRating*10)/10
     const updatedProductObject = {
       reviews: newReviewsList,
-      averageRating: averageRating
+      averageRating: (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
     }
-    // console.log(updatedProductObject)
     
     const productUpdate = await productsCollection.updateOne({_id: new ObjectId(_pid)}, {$set: updatedProductObject})
     if(productUpdate.modifiedCount>0) {
@@ -259,12 +237,11 @@ const removeReview = async (reviewId) => {
     let updatedProductObject = undefined
     if(newReviewsList.length !== 0) {
       let ratingsArray = newReviewsList.map((review) => {return review.rating})
-      // console.log(ratingsArray)
       let averageRating = (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
       averageRating = Math.round(averageRating*10)/10
       updatedProductObject = {
         reviews: newReviewsList,
-        averageRating: averageRating
+        averageRating: (Math.round(ratingsArray.reduce((accumulator, current) => {return accumulator+current})*10)/10)/ratingsArray.length
       }
     } else {
       updatedProductObject = {

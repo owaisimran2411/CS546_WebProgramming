@@ -75,7 +75,7 @@ router
           if(typeof createReview === 'string' && createReview === 'Product Not Found') {
             res.status(404).json({error: createReview})
           } else if (typeof createReview === 'string') {
-            res.status(400).json({error: e})
+            res.status(400).json({error: createReview})
           } else {
             res.status(200).json(createReview)
           }
@@ -185,7 +185,6 @@ router
         }
         try {
           const patchReview = await reviewsData.updateReview(reviewId, updateObject)
-          console.log(patchReview)
           if(typeof patchReview === 'string') {
             res.status(404).json({error: patchReview})
           } else {

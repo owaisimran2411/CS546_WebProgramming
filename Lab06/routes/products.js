@@ -58,7 +58,7 @@ router
             dateReleased = dateReleased.trim()
           
             let price = req.body.price
-            primitiveTypeValidation(price, "price", "Number", res)
+            primitiveTypeValidation(price, "price", "Number")
           
             if(price>0) {
               if(Math.floor(price) !== price) {
@@ -223,7 +223,7 @@ router
             dateReleased = dateReleased.trim()
           
             let price = req.body.price
-            primitiveTypeValidation(price, "price", "Number", res)
+            primitiveTypeValidation(price, "price", "Number")
           
             if(price>0) {
               if(Math.floor(price) !== price) {
@@ -313,7 +313,7 @@ router
               res.status(400).json({error: e})
             }
           } catch (e) {
-            if("statusCode" in e && "message" in e) {
+            if(typeof e === "object" && "statusCode" in e && "message" in e) {
               res.status(e.statusCode).json({error: e.message})
             } else {
               res.status(400).json({error: e})
