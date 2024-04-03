@@ -1,0 +1,14 @@
+{{!
+You can use this template to render any errors on your site if you wish
+}}
+{{#if validationError}}
+    <p class="validation-error">{{error}}</p>
+{{/if}}
+
+{{#if notFoundError}}
+    <p class="not-found">We're sorry, but no results were found for {{error}}.</p>
+{{/if}}
+
+{{#if badRequestError}}
+    <p class="error">{{error}}</p>
+{{/if}}

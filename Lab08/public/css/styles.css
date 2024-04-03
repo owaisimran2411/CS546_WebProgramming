@@ -1,0 +1,100 @@
+/*This file should have 10 CSS rulesets */
+.searchResultImage {
+    width: 75px;
+    height: 117px;
+}
+
+a {
+    font-weight: bold;
+}
+a:hover {
+    color: red;
+}
+
+a:visited {
+    color: purple;
+}
+
+.validation-error {
+    color: black;
+}
+
+.not-found {
+    color: red;
+}
+
+.error {
+    color: black;
+}
+
+#searchMoviesByName {
+    border: 1px solid red;
+}
+
+form {
+    padding: 10px 15px;
+    border: 3px dotted black;
+    height: 100px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: aqua;
+}
+
+h1, h2 {
+    font-weight: bolder;
+    font-style: italic;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+label {
+    padding-right: 15px;
+}
+
+body {
+    background-color: pink;
+    margin-left: 20px;
+}
+
+p {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: normal;
+}
+
+#submitButton {
+    padding: 5px;
+    font-weight: bold;
+    background-color: papayawhip;
+}
+
+table {
+    border: 3px solid white;
+    padding: 5px 10px;
+    text-align: center;
+}
+
+tr {
+    border: 1px solid black;
+}
+
+td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+dl {
+    margin-left: 10px;
+}
+
+
+dt {
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+#coverImage {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
