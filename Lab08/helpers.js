@@ -2,7 +2,7 @@ import axios from "axios";
 import { log } from "console";
 
 const APIEndpoint = 'http://www.omdbapi.com/'
-const APIKey = 'CS546'
+const APIKey = 'API_KEY_GOES_HERE'
 
 const requestWithMovieName = async (movieTitle, pageNumber) => {
     const URL = `${APIEndpoint}?apiKey=${APIKey}&s=${movieTitle}&page=${pageNumber || 1}`

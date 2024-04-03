@@ -24,6 +24,10 @@ export const searchMoviesByName = async (title) => {
       return {
         results: data.data.Search.concat(secondCall.data.Search)
       }
+    } else {
+      return {
+        results: data.data.Search
+      }
     }
     
   } else {

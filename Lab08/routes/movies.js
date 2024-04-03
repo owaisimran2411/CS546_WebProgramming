@@ -26,7 +26,7 @@ router.route('/').get(async (req, res) => {
 router.route('/searchmovies').post(async (req, res) => {
   //code here for POST this is where your form will be submitting searchMoviesByName and then call your data function passing in the searchMoviesByName and then rendering the search results of up to 20 Movies.
   try {
-    console.log(req.body);
+    // console.log(req.body);
     argumentProvidedValidation(req.body.searchMoviesByName, "searchMoviesByName")
     // const title = req.body.searchMoviesByName.replace(/[^a-zA-Z ]/g, "")
     const title=req.body.searchMoviesByName
