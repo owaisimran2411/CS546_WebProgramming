@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/public/css/styles.css">
+    <title>Text Analyzer Application</title>
+</head>
+<body>
+
+    <header>
+        <h1>Text Analyzer Application</h1>
+    </header>
+    
+
+    <main>
+        <form method="POST" id="text_analyze_form">
+            <label for="text_to_analyze">Enter your text to analyze</label>
+            <textarea name="text_to_analyze" id="text_to_analyze" cols="30" rows="10"></textarea>
+            <button type="submit">Analyze</button>
+
+
+        </form>
+        <div id="error-div" hidden>
+            <p>I am an error</p>
+        </div>
+        <div id="text-output" hidden>
+            
+        </div>
+    </main>
+    <footer class="footer">
+        Muhammad Owais Imran, <b>CWID</b>: 20025554
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+		integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="/public/js/text_analyzer.js"></script>
+    
+</body>
+</html>
