@@ -45,7 +45,51 @@ ONLY USERS WITH A ROLE of admin SHOULD BE ABLE TO ACCESS THE /admin ROUTE!
 */
 
 import express from 'express'
+import session from 'express-session'
+import configRoutes from './routes/index.js'
+import exphbs from 'express-handlebars'
 
+const rewriteUnsupportedBrowserMethods = (req, res, next) => {
+    // If the user posts to the server with a property called _method, rewrite the request's method
+    // To be that method; so if they post _method=PUT you can now allow browsers to POST to a route that gets
+    // rewritten in this middleware to a PUT route
+    if (req.body && req.body._method) {
+      req.method = req.body._method;
+      delete req.body._method;
+    }
+  
+    // let the next middleware run:
+    next();
+};
 
 const app = express()
+
+app.use('/public', express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(rewriteUnsupportedBrowserMethods);
+
+app.use(express.json())
+app.use(
+    session({
+        cookie: {
+            maxAge: 60000
+        },
+        resave: false,
+        saveUninitialized: false,
+        name: 'Lab10Session'
+    })
+)
+
+app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+
+configRoutes(app)
+
+const PORT_NUMBER=3000
+app.listen(PORT_NUMBER, ()=> {
+    console.log(`We've now got a server!`)
+    console.log(`Routes will be running at http://localhost:${PORT_NUMBER}`)
+})
 
