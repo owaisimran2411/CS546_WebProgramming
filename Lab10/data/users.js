@@ -20,6 +20,7 @@ export const registerUser = async (
   themePreference,
   role
 ) => {
+  
   argumentProvidedValidation(firstName, 'firstName')
   argumentProvidedValidation(lastName, 'lastName')
   argumentProvidedValidation(username, 'username')
@@ -109,6 +110,7 @@ export const registerUser = async (
 };
 
 export const loginUser = async (username, password) => {
+
   argumentProvidedValidation(username, 'username')
   argumentProvidedValidation(password, 'password')
 
@@ -126,7 +128,8 @@ export const loginUser = async (username, password) => {
     !/[a-z]/.test(password) || 
     !/[^A-Z0-9a-z]/.test(password) || 
     /\s/.test(password) ||
-    password.length < 8 ) {
+    password.length < 8 
+  ) {
       throw `Password constraint(s) violated`
   }
 
