@@ -2,11 +2,11 @@
 import {
   argumentProvidedValidation,
   primitiveTypeValidation
-} from './../helpers'
+} from './../helpers.js'
 
 import {
   users
-} from './../config/mongoCollections'
+} from './../config/mongoCollections.js'
 
 import { ObjectId } from "mongodb";
 import bcrypt from 'bcryptjs';
@@ -43,12 +43,14 @@ export const registerUser = async (
 
   // username validation
   username = primitiveTypeValidation(username, 'username', 'String')
-  if(username.length > 4 && lastName.length <= 10 && !/\d/.test(username)) {
+  if(username.length > 4 && username.length <= 10 && !/\d/.test(username)) {
     username = username.toLowerCase()
   } else {
     throw `Username constraint(s) violated`
   }
-  if(checkUsernameDuplication(username)) {
+  const duplicationResult = await checkUsernameDuplication(username)
+  
+  if(duplicationResult) {
     throw `Duplicate username`
   }
 
@@ -81,8 +83,8 @@ export const registerUser = async (
   // role validation
   role = primitiveTypeValidation(role, 'role', 'String')
   role = role.toLowerCase()
-  if (role !== 'dark' && role !== 'light') {
-    throw `Theme Preference can only be Dark/Light`
+  if (role !== 'admin' && role !== 'user') {
+    throw `Role can only be Admin/User`
   }
 
   // database insertion
@@ -115,7 +117,7 @@ export const loginUser = async (username, password) => {
   argumentProvidedValidation(password, 'password')
 
   username = primitiveTypeValidation(username, 'username', 'String')
-  if(username.length > 4 && lastName.length <= 10 && !/\d/.test(username)) {
+  if(username.length > 4 && username.length <= 10 && !/\d/.test(username)) {
     username = username.toLowerCase()
   } else {
     throw `Username constraint(s) violated`
@@ -133,11 +135,11 @@ export const loginUser = async (username, password) => {
       throw `Password constraint(s) violated`
   }
 
-  if(checkUsernameDuplication(username)) {
-    const userCollection = await users()
-    const userInformation = await userCollection.findOne({
-      username: username
-    })
+  const userCollection = await users()
+  const userInformation = await userCollection.findOne({
+    username: username
+  })
+  if(userInformation !== null){
     const passwordCompare = await bcrypt.compare(password, userInformation.password)
     if(!passwordCompare) {
       throw `Either the username or password is invalid`
@@ -150,11 +152,9 @@ export const loginUser = async (username, password) => {
         role: userInformation.role
       }
     }
-    
   } else {
     throw `Either the username or password is invalid`
   }
-
 
 };
 
@@ -163,10 +163,9 @@ const checkUsernameDuplication = async (username) => {
   const userInformation = await userCollection.findOne({
     username: username
   })
-  console.log(userInformation)
   if(userInformation === null) {
-    return true
-  } else {
     return false
+  } else {
+    return true
   }
 }

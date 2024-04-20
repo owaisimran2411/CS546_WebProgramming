@@ -69,7 +69,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(rewriteUnsupportedBrowserMethods);
 
-app.use(express.json())
 app.use(
     session({
         cookie: {
@@ -77,12 +76,119 @@ app.use(
         },
         resave: false,
         saveUninitialized: false,
-        name: 'Lab10Session'
+        name: 'AuthenticationState',
+        secret: "this is a secret"
     })
 )
 
 app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
+
+// middleware for root route
+app.use('/', async (req, res, next) => {
+
+    // partA: log message
+    const TIMESTAMP = new Date().toUTCString()
+    const METHOD = req.method
+    const ORIGINAL_URL = req.originalUrl
+    const IS_USER_AUTHENTICATED = (req.session.user ? "(Authenticated)" : "(Non-Authenticated)")
+    
+    const logMessage = `[${TIMESTAMP}]: ${METHOD} ${ORIGINAL_URL} ${IS_USER_AUTHENTICATED}`
+
+    console.log(logMessage)
+    if(req.path === '/') {
+        if(req.session.user) {
+            // const redirectPath = (req.session.user.role === 'admin' ? '/admin' : '/user')
+            return res.redirect(`/${req.session.user.role}`)
+        } else {
+            return res.redirect('/login')
+        }
+    } else {
+        next()
+    }
+    
+    
+})
+
+// middleware for login route
+app.use('/login', async (req, res, next) => {
+    if(req.method == 'GET') {
+        if(req.session.user) {
+            return res.redirect(`/${req.session.user.role}`)
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
+})
+
+// middleware for register route
+app.use('/register', async (req, res, next) => {
+    if(req.method == 'GET') {
+        if(req.session.user) {
+            return res.redirect(`/${req.session.user.role}`)
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
+    // next()
+
+})
+
+// middleware for user route
+app.use('/user', async (req, res, next) => {
+    if(req.method == 'GET') {
+        if(!req.session.user) {
+            return res.redirect('/login')
+        } else {
+            next()
+        }
+    } 
+    else {
+        next()
+    }
+
+})
+
+// middleware for admin route
+app.use('/admin', async (req, res, next) => {
+    if(req.method == 'GET') {
+        if(!req.session.user) {
+            return res.redirect('/login')
+        } else if (req.session.user && req.session.user.role !== 'admin'){
+            return res.status(403).render(
+                'error', {
+                    errorMessage: 'You do not have permission to view this page',
+                    title: 'Access Denied',
+                    linkToUserRoute: true
+                }
+            )
+        } else {
+            next()
+        }
+    }
+    else {
+        next()
+    }
+
+})
+
+// middleware for logout route
+app.use('/logout', async (req, res, next) => {
+    if(req.method == 'GET') {
+        if(!req.session.user) {
+            return res.redirect('/login')
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
+
+})
 
 
 configRoutes(app)

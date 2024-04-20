@@ -11,3 +11,67 @@
 }
 
 */
+
+.dark {
+    background-color: black;
+    color: white;
+}
+
+.light {
+    background-color: white;
+    color: black;
+}
+
+#signin-form, #signup-form{
+    margin: 15px;
+    padding: 25px;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+label {
+    margin: 15px;
+    font-weight: bold;
+}
+
+#submitButton {
+    border-radius: 10%;
+    padding: 8px;
+    margin: 5px;
+}
+
+#submitButton:hover {
+    background-color: brown;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+h1 {
+    padding-left: 18px;
+}
+
+a {
+    padding-left: 18px;
+}
+
+a:visited {
+    color: red;
+}
+
+p {
+    padding-left: 18px;
+}
+
+.errorMessage {
+    font-weight: bold;
+    padding-left: 18px;
+}
+
+#error-div {
+    font-weight: bold;
+    padding-left: 18px;
+}
+
+#logoutDiv {
+    font-size: 1.5rem;
+    padding-left: 18px;
+}

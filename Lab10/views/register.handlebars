@@ -3,3 +3,67 @@
 registration handelbars
 
 --}}
+
+<h1>Register</h1>
+<form action="/register" method="POST" id="signup-form">
+    {{!-- First Name label --}}
+    <label for="firstName">First Name</label>
+    <input type="text" name="firstName" id="firstName" value="{{firstName}}">
+    <br><br>
+
+    {{!-- Last Name label --}}
+    <label for="lastName">Last Name</label>
+    <input type="text" name="lastName" id="lastName" value="{{lastName}}">
+    <br><br>
+
+    {{!-- Username label --}}
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username" value="{{username}}">
+    <br><br>
+
+    {{!-- Password label --}}
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password">
+    <br><br>
+
+    {{!-- Confirm Password label --}}
+    <label for="confirmPassword">Confirm Password</label>
+    <input type="password" name="confirmPassword" id="confirmPassword">
+    <br><br>
+
+    {{!-- Favourite Quote Input --}}
+    <label for="favoriteQuote">Favorite Quote</label>
+    <input type="text" name="favoriteQuote" id="favoriteQuote" value="{{favoriteQuote}}">
+    <br><br>
+
+    {{!-- Theme Preference DropDown --}}
+    <label for="themePreference">Theme Preference</label>
+    <select name="themePreference" id="themePreference">
+        <option value="dark">Dark</option>
+        <option value="light" selected>Light</option>
+    </select>
+    <br><br>
+
+    {{!-- Role DropDown --}}
+    <label for="role">Role</label>
+    <select name="role" id="role">
+        <option value="admin">Admin</option>
+        <option value="user" selected>User</option>
+    </select>
+    <br><br>
+
+    <input type="submit" value="Register" name="submitButton" id="submitButton">
+
+</form>
+
+<br>
+
+{{#if errorMessage}}
+    <p class="errorMessage">{{errorMessage}}</p>
+{{/if}}
+
+<div id="clientSideErrorDiv">
+    <p id="error-div" hidden>Error Message</p>
+</div>
+
+<a href="/login">Already have an account, Click here to log-in</a>

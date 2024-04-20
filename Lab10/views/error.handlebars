@@ -6,3 +6,10 @@ they are not an admin user. You don't HAVE to use this template, you can display
 the pages with the forms themselves. You can use this if you wish though. 
 
 --}}
+<p class="errorMessage">
+    {{errorMessage}}
+</p>
+
+{{#if linkToUserRoute}}
+    <a href="/user">Continue as a User</a>
+{{/if}}

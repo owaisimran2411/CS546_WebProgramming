@@ -3,3 +3,28 @@
 login form handlebar template
 
 --}}
+
+<h1>Login</h1>
+<form action="/login" method="post" id="signin-form">
+    
+    {{!-- input field for username --}}
+    <label for="username">Username: </label>
+    <input type="text" name="username" id="username">
+
+    {{!-- input field for password --}}
+    <label for="password">Password: </label>
+    <input type="password" name="password" id="password">
+
+    {{!-- Submit Button --}}
+    <input type="submit" name="submitButton" id="submitButton" value="Login">
+</form>
+
+<div id="clientSideErrorDiv">
+    <p id="error-div" hidden>Error Message</p>
+</div>
+{{#if errorMessage}}
+    <p class="errorMessage">{{errorMessage}}</p>
+{{/if}}
+
+<br>
+<a href="/register">Click here to register!</a>
