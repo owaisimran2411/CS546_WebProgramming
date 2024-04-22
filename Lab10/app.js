@@ -163,7 +163,8 @@ app.use('/admin', async (req, res, next) => {
                 'error', {
                     errorMessage: 'You do not have permission to view this page',
                     title: 'Access Denied',
-                    linkToUserRoute: true
+                    linkToUserRoute: true,
+                    themePreference: req.session.user.themePreference || 'light'
                 }
             )
         } else {
